@@ -43,7 +43,7 @@ def load_my_model(name):
     # 加载模型
     model = load_model(name)
     return model
-def get_pridiction(img_data):  # 传入图片的bytes数据
+def get_prediction(img_data):  # 传入图片的bytes数据
     # 加载模型
     model = load_my_model('my_model.h5')
     # 再将bytes数据转换为图片，再转为numpy数组
