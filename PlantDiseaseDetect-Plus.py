@@ -5,6 +5,8 @@ import json
 from keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import numpy as np
+import io
+from PIL import Image
 
 identification_scope = """
 南瓜白粉病
@@ -36,12 +38,16 @@ identification_scope = """
 马铃薯晚疫病
 """
 
-
-def get_pridcition(img):  # 传入图片，
+@st.cache_resource
+def load_my_model(name):
     # 加载模型
-    model = load_model('my_model.h5')
-    # 根据训练数据的形式，对test.jpg进行预处理
-    img = image.load_img(img, target_size=(224, 224))
+    model = load_model(name)
+    return model
+def get_pridiction(img_data):  # 传入图片的bytes数据
+    # 加载模型
+    model = load_my_model('my_model.h5')
+    # 再将bytes数据转换为图片，再转为numpy数组
+    img = Image.open(io.BytesIO(img_data)).resize((224, 224))
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = x / 255
@@ -67,9 +73,9 @@ st.sidebar.text(identification_scope)
 uploaded_file = st.file_uploader('选择一张植物病虫害叶子照片🐛')
 if uploaded_file:
     st.image(uploaded_file, caption='上传的文件')
-    # img_data = uploaded_file.read()
+    img_data = uploaded_file.read()
     with st.spinner('识别中...'):
-        pred = get_prediction(uploaded_file)
+        pred = get_prediction(img_data)
     pred_label = pred['predicted_label']
     st.success('✅识别成功')
     st.subheader(f'识别结果为{pred_label}')
